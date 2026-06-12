@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temporal Cut-Point Sampling</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <h1>Negative Examples Should Not Get More Timeline Than Positive Ones</h1>
+      <p class="subtitle">
+        Sampling synthetic decision cut-points so non-events use realistic partial histories
+      </p>
+      <div class="hero-buttons">
+        <a href="https://github.com/mah-trigui/temporal-cutpoint-sampling" class="btn primary">View Repository</a>
+        <a href="#idea" class="btn secondary">Explore Method</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h2>Overview</h2>
+        <p>
+          This project predicts escalation risk in enterprise customer support cases using metadata, event history, milestones, and comments.
+        </p>
+        <p>
+          The hardest part was not the model. It was defining how much of each case timeline the model was allowed to see.
+        </p>
+        <p>
+          Escalated cases naturally stop at the escalation decision point. Non-escalated cases do not. If full timelines are kept for non-events, the negative class receives more future information than the positive class.
+        </p>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <h2>Architecture</h2>
+        <img src="images/architecture.jpg" alt="Temporal cut-point sampling for non-events" class="architecture-image" />
+      </div>
+    </section>
+
+    <section class="section" id="idea">
+      <div class="container">
+        <h2>The Core Idea</h2>
+        <p>
+          Event-based ML is not only about defining the label. It is also about defining the decision moment.
+        </p>
+        <p>
+          Positive cases were observed only up to escalation start. To make the non-event class comparable, synthetic decision cut-points were sampled from the empirical distribution of real escalation timing.
+        </p>
+        <div class="metric-box">
+          <p><strong>Negative cases should not get a longer timeline than escalated ones.</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <h2>Selected code snippet</h2>
+        <pre>
+escalation_points_dist <- quantile(
+    escalation_starts[, escalation_start / case_end],
+    seq(0, 1, 0.01)
+)
+
+other_cases[, time_cut := case_end * sample(escalation_points_dist, .N, replace = TRUE)]
+        </pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Why this mattered</h2>
+        <ul class="clean-list">
+          <li>removed unfair history-length asymmetry between classes</li>
+          <li>made training examples resemble real decision snapshots</li>
+          <li>reduced look-ahead advantage in non-event cases</li>
+          <li>improved the realism of label and feature construction together</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <h2>Where this pattern generalizes</h2>
+        <ul class="clean-list">
+          <li>churn and retention event modeling</li>
+          <li>support escalation prediction</li>
+          <li>failure and incident anticipation</li>
+          <li>any event process with an ambiguous negative-class decision moment</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Key Takeaway</h2>
+        <div class="metric-box">
+          <p><strong>The non-event class also needs a realistic decision horizon.</strong></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Built as a public project showcase for realistic observation-window design in event-based ML.</p>
+    </div>
+  </footer>
+</body>
+</html>
